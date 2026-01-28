@@ -452,7 +452,7 @@ hr {
 
 .tile.tile-2 .tile-inner {
   background: #eee4da;
-  background-image: url("images/mo2.jpeg");
+  background-image: url("images/mo2.png");
   background-size: 107px 107px;
   box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0), inset 0 0 0 1px rgba(255, 255, 255, 0);
 
@@ -467,14 +467,14 @@ hr {
 
 .tile.tile-8 .tile-inner {
   color: #f9f6f2;
-  background-image: url("images/mo8.png");
+  background-image: url("images/mo8.jpeg");
   background-size: 107px 107px;
 
 }
 
 .tile.tile-16 .tile-inner {
   color: #f9f6f2;
-  background-image: url("images/mo16.jpg");
+  background-image: url("images/mo16.png");
   background-size: 107px 107px;
 
 }
@@ -535,7 +535,8 @@ hr {
 
 .tile.tile-1024 .tile-inner {
   color: #f9f6f2;
-  background: #edc53f;
+  background-image: url("images/mo1024.png");
+  background-size: 107px 107px;
   box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.47619), inset 0 0 0 1px rgba(255, 255, 255, 0.28571);
   font-size: 30px;
 }
@@ -548,7 +549,8 @@ hr {
 
 .tile.tile-2048 .tile-inner {
   color: #f9f6f2;
-  background: #edc22e;
+  ackground-image: url("images/mo2048.jpg");
+  background-size: 107px 107px;
   box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.55556), inset 0 0 0 1px rgba(255, 255, 255, 0.33333);
   font-size: 30px;
 }
