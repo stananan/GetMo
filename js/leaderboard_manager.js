@@ -61,6 +61,8 @@ LeaderboardManager.prototype.showLeaderboardModal = function(currentScore) {
           <button id="submit-score-btn">Submit Score</button>
           <p class="submit-message" id="submit-message"></p>
         </div>
+        
+        <button class="close-modal-btn" id="close-leaderboard">Close</button>
       </div>
     </div>
   `;
@@ -120,6 +122,11 @@ LeaderboardManager.prototype.showLeaderboardModal = function(currentScore) {
       document.getElementById('player-name').disabled = true;
       document.getElementById('submit-score-btn').disabled = true;
     });
+  });
+  
+  // Close button
+  document.getElementById('close-leaderboard').addEventListener('click', function() {
+    modalContainer.remove();
   });
   
   // Focus on name input

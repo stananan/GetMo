@@ -109,6 +109,23 @@
   min-height: 20px;
 }
 
+.close-modal-btn {
+  width: 100%;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #f9f6f2;
+  background: #776e65;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.close-modal-btn:hover {
+  background: #8f7a66;
+}
+
 .error {
   color: #ed5565;
   text-align: center;
@@ -132,7 +149,7 @@
     font-size: 24px;
   }
   
-  #player-name, #submit-score-btn {
+  #player-name, #submit-score-btn, .close-modal-btn {
     padding: 12px;
     font-size: 16px;
   }
