@@ -5,6 +5,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.actuator       = new Actuator;
 
   this.startTiles     = 2;
+  this.turnCount      = 0; // Track number of moves
 
   this.inputManager.on("move", this.move.bind(this));
   this.inputManager.on("restart", this.restart.bind(this));
@@ -43,12 +44,14 @@ GameManager.prototype.setup = function () {
     this.over        = previousState.over;
     this.won         = previousState.won;
     this.keepPlaying = previousState.keepPlaying;
+    this.turnCount   = previousState.turnCount || 0; // Restore turn count
   } else {
     this.grid        = new Grid(this.size);
     this.score       = 0;
     this.over        = false;
     this.won         = false;
     this.keepPlaying = false;
+    this.turnCount   = 0;
 
     // Add the initial tiles
     this.addStartTiles();
@@ -105,7 +108,8 @@ GameManager.prototype.serialize = function () {
     score:       this.score,
     over:        this.over,
     won:         this.won,
-    keepPlaying: this.keepPlaying
+    keepPlaying: this.keepPlaying,
+    turnCount:   this.turnCount
   };
 };
 
@@ -180,6 +184,7 @@ GameManager.prototype.move = function (direction) {
   });
 
   if (moved) {
+     this.turnCount++; // Increment turn counter on valid move
      this.addRandomTile();
 
      if (!this.movesAvailable()) {
@@ -189,7 +194,7 @@ GameManager.prototype.move = function (direction) {
        var self = this;
        setTimeout(function() {
          if (window.gameLeaderboard) {
-           window.gameLeaderboard.showLeaderboardModal(self.score);
+           window.gameLeaderboard.showLeaderboardModal(self.score, self.turnCount);
          }
        }, 500); // Small delay so user can see final move
      }

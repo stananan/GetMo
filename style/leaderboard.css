@@ -477,3 +477,14 @@
     font-size: 14px;
   }
 }
+
+
+
+.turn-count {
+  text-align: center;
+  font-size: 16px;
+  color: #776e65;
+  margin-top: -15px;
+  margin-bottom: 20px;
+  font-style: italic;
+}

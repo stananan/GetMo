@@ -1,34 +1,102 @@
 function LeaderboardManager(scriptUrl) {
   this.scriptUrl = scriptUrl;
+  this.recentSubmissions = {}; // Track recent submissions by name
 }
 
+// Client-side validation
+LeaderboardManager.prototype.validateSubmission = function (name, score, turns) {
+  // Validate name
+  if (!name || name.length < 1) {
+    return { valid: false, message: 'Please enter your name!' };
+  }
+  if (name.length > 20) {
+    return { valid: false, message: 'Name too long (max 20 characters)' };
+  }
+  
+  // Validate score
+  if (score <= 0 || !Number.isInteger(score)) {
+    return { valid: false, message: 'Invalid score' };
+  }
+  
+  if (score % 4 !== 0) {
+    return { valid: false, message: 'Invalid score (not a valid 2048 score)' };
+  }
+  
+  if (score > 4000000) {
+    return { valid: false, message: 'Score too high - this seems impossible!' };
+  }
+  
+  // Validate turns - minimum turns needed for a score
+  // Formula: For every ~30-50 points, you need at least 1 turn
+  // This is very generous to account for different playstyles
+  var minimumTurns = Math.floor(score / 100); // Very lenient: 100 points per turn
+  var maximumTurns = score * 3; // Nobody should take 3x as many turns as their score
+  
+  if (turns < minimumTurns) {
+    return { valid: false, message: 'Too few turns for this score - impossible!' };
+  }
+  
+  if (turns > maximumTurns) {
+    return { valid: false, message: 'Too many turns - something went wrong!' };
+  }
+  
+  // Check rate limiting (3 submissions per 5 minutes)
+  var now = Date.now();
+  var fiveMinutesAgo = now - (5 * 60 * 1000);
+  
+  if (!this.recentSubmissions[name]) {
+    this.recentSubmissions[name] = [];
+  }
+  
+  // Clean old submissions
+  this.recentSubmissions[name] = this.recentSubmissions[name].filter(function(timestamp) {
+    return timestamp > fiveMinutesAgo;
+  });
+  
+  if (this.recentSubmissions[name].length >= 3) {
+    return { valid: false, message: 'Too many submissions. Please wait a few minutes.' };
+  }
+  
+  return { valid: true };
+};
+
 // Submit a score to the leaderboard
-LeaderboardManager.prototype.submitScore = function (name, score, callback) {
+LeaderboardManager.prototype.submitScore = function (name, score, turns, callback) {
   var self = this;
+  
+  // Validate before submitting
+  var validation = this.validateSubmission(name, score, turns);
+  if (!validation.valid) {
+    setTimeout(function() {
+      if (callback) callback(new Error(validation.message), null);
+    }, 0);
+    return;
+  }
+  
+  // Track this submission
+  if (!this.recentSubmissions[name]) {
+    this.recentSubmissions[name] = [];
+  }
+  this.recentSubmissions[name].push(Date.now());
+  
   fetch(this.scriptUrl, {
     method: 'POST',
-    mode: 'no-cors', // Important for Google Apps Script
+    mode: 'no-cors', // Required for Google Apps Script
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       name: name,
-      score: score
+      score: score,
+      turns: turns
     })
   })
     .then(function () {
-      // no-cors means we can't read the response, but if it doesn't error, it worked
-      //console.log(s);
+      // no-cors means we can't read the response
+      // If it doesn't throw an error, we assume it worked
       if (callback) callback(null, { status: 'success' });
     })
-    // .then(res => res.json()) // parse the JSON response
-    // .then(data => {
-    //   // data now contains { status, message }
-    //   console.log(data.message); // <-- you can access your Google Script message here
-    //   if (callback) callback(null, { status: 'success' });
-    // })
     .catch(function (error) {
-      //console.log(s);
       if (callback) callback(error, null);
     });
 };
@@ -62,7 +130,7 @@ LeaderboardManager.prototype.getAllScores = function (callback) {
 };
 
 // Show leaderboard modal
-LeaderboardManager.prototype.showLeaderboardModal = function (currentScore) {
+LeaderboardManager.prototype.showLeaderboardModal = function (currentScore, turnCount) {
   var self = this;
   var container = document.querySelector('.container');
   if (!container) {
@@ -75,6 +143,7 @@ LeaderboardManager.prototype.showLeaderboardModal = function (currentScore) {
       <div class="leaderboard-modal leaderboard-modal-simple">
         <h2>Game Over!</h2>
         <p class="final-score">Your Score: <strong>${currentScore}</strong></p>
+        <p class="turn-count">Moves: ${turnCount}</p>
         
         <div class="submit-score-section">
           <h3>Submit to Leaderboard</h3>
@@ -125,23 +194,23 @@ LeaderboardManager.prototype.showLeaderboardModal = function (currentScore) {
     messageEl.textContent = 'Submitting...';
     messageEl.style.color = '#776e65';
 
-    self.submitScore(name, currentScore, function (error, result) {
+    self.submitScore(name, currentScore, turnCount, function (error, result) {
       if (error) {
-        messageEl.textContent = 'Score submitted no!' + error;
-        messageEl.style.color = '#ff0000';
+        messageEl.textContent = 'Failed: ' + error.message;
+        messageEl.style.color = '#ed5565';
       } else {
         messageEl.textContent = 'Score submitted successfully!';
         messageEl.style.color = '#a0d468';
+        
+        // Reload permanent leaderboard
+        setTimeout(function () {
+          self.updatePermanentLeaderboard();
+        }, 1000);
+
+        // Disable input and button
+        document.getElementById('player-name').disabled = true;
+        document.getElementById('submit-score-btn').disabled = true;
       }
-
-      // Reload permanent leaderboard
-      setTimeout(function () {
-        self.updatePermanentLeaderboard();
-      }, 1000);
-
-      // Disable input and button
-      document.getElementById('player-name').disabled = true;
-      document.getElementById('submit-score-btn').disabled = true;
     });
   });
 
