@@ -328,7 +328,7 @@ LeaderboardManager.prototype.showAllScoresModal = function () {
     // Remove duplicates - keep only best score per person
     var bestScores = {};
     sortedScores.forEach(function (entry) {
-      var name = entry.name.toLowerCase;
+      var name = entry.name.toLowerCase();
       if (!bestScores[name] || entry.score > bestScores[name].score) {
         bestScores[name] = entry;
       }
