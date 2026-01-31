@@ -32,7 +32,6 @@ GameManager.prototype.isGameTerminated = function () {
   return this.over || (this.won && !this.keepPlaying);
 };
 
-// Set up the game
 GameManager.prototype.setup = function () {
   var previousState = this.storageManager.getGameState();
 

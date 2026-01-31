@@ -26,9 +26,6 @@ LeaderboardManager.prototype.validateSubmission = function (name, score, turns) 
     return { valid: false, message: 'Score too high - this seems impossible!' };
   }
   
-  // Validate turns - minimum turns needed for a score
-  // Formula: For every ~30-50 points, you need at least 1 turn
-  // This is very generous to account for different playstyles
   var minimumTurns = Math.floor(score / 100); // Very lenient: 100 points per turn
   var maximumTurns = score * 3; // Nobody should take 3x as many turns as their score
   
